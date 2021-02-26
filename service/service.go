@@ -13,17 +13,21 @@
 * GNU Lesser General Public License for more details.
 * You should have received a copy of the GNU Lesser General Public License
 * along with The poly network . If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package service
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 	"time"
 
+	"poly-bridge/bridgesdk"
+
 	sdk "github.com/ontio/ontology-go-sdk"
+	"github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/smartcontract/service/native/utils"
 	"github.com/polynetwork/ont-relayer/config"
 	"github.com/polynetwork/ont-relayer/db"
@@ -31,6 +35,7 @@ import (
 	asdk "github.com/polynetwork/poly-go-sdk"
 	"github.com/polynetwork/poly-go-sdk/client"
 	vconfig "github.com/polynetwork/poly/consensus/vbft/config"
+	common2 "github.com/polynetwork/poly/native/service/cross_chain_manager/common"
 	autils "github.com/polynetwork/poly/native/service/utils"
 )
 
@@ -40,12 +45,14 @@ type SyncService struct {
 	aliaSyncHeight uint32
 	sideAccount    *sdk.Account
 	sideSdk        *sdk.OntologySdk
+	bridgeSdk      *bridgesdk.BridgeSdkPro
 	sideSyncHeight uint32
 	db             *db.BoltDB
 	config         *config.Config
 }
 
-func NewSyncService(aliaAccount *asdk.Account, sideAccount *sdk.Account, aliaSdk *asdk.PolySdk, sideSdk *sdk.OntologySdk) *SyncService {
+// NewSyncService ...
+func NewSyncService(aliaAccount *asdk.Account, sideAccount *sdk.Account, aliaSdk *asdk.PolySdk, sideSdk *sdk.OntologySdk, bridgeSdk *bridgesdk.BridgeSdkPro) *SyncService {
 	if !checkIfExist(config.DefConfig.DBPath) {
 		os.Mkdir(config.DefConfig.DBPath, os.ModePerm)
 	}
@@ -59,6 +66,7 @@ func NewSyncService(aliaAccount *asdk.Account, sideAccount *sdk.Account, aliaSdk
 		aliaSdk:     aliaSdk,
 		sideAccount: sideAccount,
 		sideSdk:     sideSdk,
+		bridgeSdk:   bridgeSdk,
 		db:          boltDB,
 		config:      config.DefConfig,
 	}
@@ -132,6 +140,36 @@ func (this *SyncService) ProcessToAllianceCheckAndRetry() {
 	}
 }
 
+func (this *SyncService) isPaid(param *common2.ToMerkleValue) bool {
+	for {
+		txHash := hex.EncodeToString(param.MakeTxParam.TxHash)
+		req := &bridgesdk.CheckFeeReq{Hash: txHash, ChainId: param.FromChainID}
+		resp, err := this.bridgeSdk.CheckFee([]*bridgesdk.CheckFeeReq{req})
+		if err != nil {
+			log.Errorf("CheckFee failed:%v, TxHash:%s FromChainID:%d", err, txHash, param.FromChainID)
+			time.Sleep(time.Second)
+			continue
+		}
+		if len(resp) != 1 {
+			log.Errorf("CheckFee resp invalid, length %d, TxHash:%s FromChainID:%d", len(resp), txHash, param.FromChainID)
+			time.Sleep(time.Second)
+			continue
+		}
+
+		switch resp[0].PayState {
+		case bridgesdk.STATE_HASPAY:
+			return true
+		case bridgesdk.STATE_NOTPAY:
+			return false
+		case bridgesdk.STATE_NOTCHECK:
+			log.Errorf("CheckFee STATE_NOTCHECK, TxHash:%s FromChainID:%d, wait...", txHash, param.FromChainID)
+			time.Sleep(time.Second)
+			continue
+		}
+
+	}
+}
+
 func (this *SyncService) allianceToSide(m, n uint32) error {
 	for i := m; i < n; i++ {
 		log.Infof("[allianceToSide] start parse block %d", i)
@@ -174,12 +212,14 @@ func (this *SyncService) allianceToSide(m, n uint32) error {
 						if err != nil {
 							if strings.Contains(err.Error(), "http post request:") {
 								return fmt.Errorf("[allianceToSide] this.syncProofToSide error:%s", err)
-							} else {
-								log.Errorf("[allianceToSide] this.syncProofToSide error:%s", err)
 							}
+							log.Errorf("[allianceToSide] this.syncProofToSide error:%s", err)
 						}
-						log.Infof("[allianceToSide] syncProofToSide ( ont_tx: %s, poly_tx: %s )",
-							txHash.ToHexString(), event.TxHash)
+						if txHash != common.UINT256_EMPTY {
+							log.Infof("[allianceToSide] syncProofToSide ( ont_tx: %s, poly_tx: %s )",
+								txHash.ToHexString(), event.TxHash)
+						}
+
 					}
 				}
 			}

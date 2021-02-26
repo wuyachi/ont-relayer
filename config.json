@@ -1,14 +1,20 @@
 {
-  "AliaJsonRpcAddress":"http://poly:20336",
-  "SideJsonRpcAddress":"http://ontology:20336",
+  "AliaJsonRpcAddress": "http://138.91.6.125:20336",
+  "SideJsonRpcAddress": "http://polaris2.ont.io:20336",
   "SideChainID": 3,
-  "AliaWalletFile": "./wallet1.dat",
-  "SideWalletFile": "./wallet2.dat",
+  "AliaWalletFile": "../poly-io-test/.wallets/wallet1.dat",
+  "SideWalletFile": ".wallet/ont_dev.dat",
   "DBPath": "boltdb",
   "ScanInterval": 1,
   "RetryInterval": 1,
-  "GasPrice":500,
-  "GasLimit":200000,
+  "GasPrice": 2500,
+  "GasLimit": 200000,
   "SideToAlliForceSyncHeight": 0,
-  "AlliToSideForceSyncHeight": 0
+  "AlliToSideForceSyncHeight": 2404816,
+  "BridgeConfig": {
+    "RestURL": [
+      "http://40.115.153.174:30330/v1/"
+    ]
+  },
+  "TargetContracts": []
 }

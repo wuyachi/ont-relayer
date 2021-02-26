@@ -3,11 +3,17 @@ module github.com/polynetwork/ont-relayer
 go 1.14
 
 require (
-	github.com/FactomProject/basen v0.0.0-20150613233007-fe3947df716e // indirect
 	github.com/boltdb/bolt v1.3.1
-	github.com/ontio/ontology v1.11.0
-	github.com/ontio/ontology-go-sdk v1.11.4-0.20200723034813-8ba45563dac6
-	github.com/polynetwork/poly v0.0.0-20200722075529-eea88acb37b2
-	github.com/polynetwork/poly-go-sdk v0.0.0-20200722030827-6875b6018b93
-	github.com/urfave/cli v1.22.4
+	github.com/ontio/ontology v1.12.0
+	github.com/ontio/ontology-go-sdk v1.11.4
+	github.com/polynetwork/bsc-relayer v0.0.0-00010101000000-000000000000
+	github.com/polynetwork/poly v0.0.0-20210108071928-86193b89e4e0
+	github.com/polynetwork/poly-go-sdk v0.0.0-20200817120957-365691ad3493
+	github.com/stretchr/testify v1.6.1
+	github.com/urfave/cli v1.22.5
+	poly-bridge v0.0.0-20210112082403-a45d71989293
 )
+
+replace poly-bridge => github.com/polynetwork/poly-bridge v0.0.0-20210126083254-80335b53070a
+
+replace github.com/polynetwork/bsc-relayer => github.com/zhiqiangxu/bsc-relayer v0.0.0-20210225063107-648c654c340f

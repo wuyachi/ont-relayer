@@ -30,7 +30,7 @@
 * GNU Lesser General Public License for more details.
 * You should have received a copy of the GNU Lesser General Public License
 * along with The poly network . If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package main
 
 import (
@@ -39,6 +39,8 @@ import (
 	"os/signal"
 	"runtime"
 	"syscall"
+
+	"poly-bridge/bridgesdk"
 
 	sdk "github.com/ontio/ontology-go-sdk"
 	"github.com/polynetwork/ont-relayer/cmd"
@@ -108,7 +110,9 @@ func startSync(ctx *cli.Context) {
 		return
 	}
 
-	syncService := service.NewSyncService(aliaAccount, sideAccount, aliaSdk, sideSdk)
+	bridgeSdk := bridgesdk.NewBridgeSdkPro(config.DefConfig.BridgeConfig.RestURL, 5)
+
+	syncService := service.NewSyncService(aliaAccount, sideAccount, aliaSdk, sideSdk, bridgeSdk)
 	syncService.Run()
 
 	waitToExit()

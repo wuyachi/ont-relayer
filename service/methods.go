@@ -13,24 +13,27 @@
 * GNU Lesser General Public License for more details.
 * You should have received a copy of the GNU Lesser General Public License
 * along with The poly network . If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package service
 
 import (
 	"encoding/hex"
 	"fmt"
-	common2 "github.com/ontio/ontology/common"
 	"os"
 	"strings"
 	"time"
 
+	common2 "github.com/ontio/ontology/common"
+
 	"github.com/ontio/ontology/smartcontract/service/native/cross_chain/cross_chain_manager"
 	"github.com/ontio/ontology/smartcontract/service/native/cross_chain/header_sync"
 	"github.com/ontio/ontology/smartcontract/service/native/utils"
+	"github.com/polynetwork/bsc-relayer/tools"
 	"github.com/polynetwork/ont-relayer/common"
 	"github.com/polynetwork/ont-relayer/db"
 	"github.com/polynetwork/ont-relayer/log"
 	acommon "github.com/polynetwork/poly/common"
+	common3 "github.com/polynetwork/poly/native/service/cross_chain_manager/common"
 	hscommon "github.com/polynetwork/poly/native/service/header_sync/common"
 	autils "github.com/polynetwork/poly/native/service/utils"
 )
@@ -300,12 +303,26 @@ func (this *SyncService) syncProofToSide(key string, height uint32) (common2.Uin
 	if err != nil {
 		return common2.UINT256_EMPTY, fmt.Errorf("[syncProofToSide] this.sideSdk.GetMptProof error: %s", err)
 	}
+	auditpath, _ := hex.DecodeString(proof.AuditPath)
+	value, _, _, _ := tools.ParseAuditpath(auditpath)
+	merkleValue := &common3.ToMerkleValue{}
+	if err := merkleValue.Deserialization(acommon.NewZeroCopySource(value)); err != nil {
+		log.Errorf("[syncProofToSide] - failed to deserialize MakeTxParam (value: %x, err: %v)", value, err)
+		return common2.UINT256_EMPTY, fmt.Errorf("[syncProofToSide] - failed to deserialize MakeTxParam (value: %x, err: %v)", value, err)
+	}
+	if !this.isPaid(merkleValue) {
+		log.Infof("%v skipped because not paid", hex.EncodeToString(merkleValue.TxHash))
+		return common2.UINT256_EMPTY, nil
+	}
+	log.Infof("%v is paid, start processing", hex.EncodeToString(merkleValue.TxHash))
+
 	param := &cross_chain_manager.ProcessCrossChainTxParam{
 		Address:     this.sideAccount.Address,
 		FromChainID: this.aliaSdk.ChainId,
 		Height:      height + 1,
 		Proof:       proof.AuditPath,
 	}
+
 	v, err := this.sideSdk.GetStorage(utils.HeaderSyncContractAddress.ToHexString(),
 		common.ConcatKey([]byte(header_sync.HEADER_INDEX), chainIDBytes, heightBytes))
 	if len(v) == 0 {

@@ -32,7 +32,7 @@
 * GNU Lesser General Public License for more details.
 * You should have received a copy of the GNU Lesser General Public License
 * along with The poly network . If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package config
 
 import (
@@ -64,6 +64,12 @@ type Config struct {
 	GasLimit                  uint64
 	SideToAlliForceSyncHeight uint64
 	AlliToSideForceSyncHeight uint64
+	BridgeConfig              BridgeConfig
+}
+
+// BridgeConfig ...
+type BridgeConfig struct {
+	RestURL []string
 }
 
 //NewConfig retuen a TestConfig instance

@@ -4,3 +4,7 @@ ont-relayer
 ont_relayer
 wallet1.dat
 wallet2.dat
+log
+.wallet
+.vscode
+boltdb
