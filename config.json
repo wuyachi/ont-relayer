@@ -1,5 +1,5 @@
 {
-  "AliaJsonRpcAddress": "http://138.91.6.125:20336",
+  "AliaJsonRpcAddress": "http://beta2.poly.network:20336",
   "SideJsonRpcAddress": "http://polaris2.ont.io:20336",
   "SideChainID": 3,
   "AliaWalletFile": "../poly-io-test/.wallets/wallet1.dat",
@@ -9,8 +9,8 @@
   "RetryInterval": 1,
   "GasPrice": 2500,
   "GasLimit": 200000,
-  "SideToAlliForceSyncHeight": 0,
-  "AlliToSideForceSyncHeight": 2404816,
+  "SideToAlliForceSyncHeight": 14700910,
+  "AlliToSideForceSyncHeight": 4395289,
   "BridgeConfig": {
     "RestURL": [
       "http://40.115.153.174:30330/v1/"
