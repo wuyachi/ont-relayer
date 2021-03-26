@@ -173,8 +173,10 @@ func (this *SyncService) isPaid(param *common2.ToMerkleValue) bool {
 }
 
 func (this *SyncService) allianceToSide(m, n uint32) error {
+	last := time.Now()
 	for i := m; i < n; i++ {
-		log.Infof("[allianceToSide] start parse block %d", i)
+		log.Infof("[allianceToSide] start parse block %d duration %s diff %d", i, time.Now().Sub(last).String(), n-i)
+		last = time.Now()
 		//sync key header
 		blockHeader, err := this.aliaSdk.GetHeaderByHeight(i)
 		if err != nil {
