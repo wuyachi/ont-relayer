@@ -235,7 +235,7 @@ func (this *SyncService) allianceToSide(m, n uint32) error {
 func (this *SyncService) sideToAlliance(m, n uint32) error {
 	last := time.Now()
 	for i := m; i < n; i++ {
-		log.Infof("[sideToAlliance] start parse block %d duration %s", i, time.Now().Sub(last).String())
+		log.Infof("[sideToAlliance] start parse block %d duration %s diff %d", i, time.Now().Sub(last).String(), n-i)
 		last = time.Now()
 		//sync key header
 		block, err := this.sideSdk.GetBlockByHeight(i)
