@@ -113,7 +113,9 @@ func (this *SyncService) SideToAlliance() {
 	if config.DefConfig.SideToAlliForceSyncHeight > 0 {
 		this.aliaSyncHeight = uint32(config.DefConfig.SideToAlliForceSyncHeight)
 	}
+
 	for {
+		log.Infof("[SideToAlliance] this.aliaSyncHeight %d", this.aliaSyncHeight)
 		currentSideChainHeight, err := this.sideSdk.GetCurrentBlockHeight()
 		if err != nil {
 			log.Errorf("[SideToAlliance] this.sideSdk.GetCurrentBlockHeight error:", err)
