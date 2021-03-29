@@ -21,7 +21,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"poly-bridge/bridgesdk"
@@ -214,10 +213,8 @@ func (this *SyncService) allianceToSide(m, n uint32) error {
 						key := states[5].(string)
 						txHash, err := this.syncProofToSide(key, i)
 						if err != nil {
-							if strings.Contains(err.Error(), "http post request:") {
-								return fmt.Errorf("[allianceToSide] this.syncProofToSide error:%s", err)
-							}
 							log.Errorf("[allianceToSide] this.syncProofToSide error:%s", err)
+							return fmt.Errorf("[allianceToSide] this.syncProofToSide error:%s", err)
 						}
 						if txHash != common.UINT256_EMPTY {
 							log.Infof("[allianceToSide] syncProofToSide ( ont_tx: %s, poly_tx: %s )",
