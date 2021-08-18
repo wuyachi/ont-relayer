@@ -162,17 +162,6 @@ func (this *SyncService) syncProofToAlia(key string, height uint32) (acommon.Uin
 		if err != nil {
 			return acommon.UINT256_EMPTY, fmt.Errorf("[syncProofToAlia] hex.DecodeString error: %s", err)
 		}
-
-		merkleValue := &ccom.MakeTxParam{}
-		if err := merkleValue.Deserialization(common2.NewZeroCopySource(params)); err != nil {
-			log.Errorf("[syncProofToAlia] - failed to deserialize MakeTxParam (value: %x, err: %v)", params, err)
-			return acommon.UINT256_EMPTY, fmt.Errorf("[syncProofToSide] - failed to deserialize MakeTxParam (value: %x, err: %v)", params, err)
-		}
-
-		if !METHODS[merkleValue.Method] {
-			log.Errorf("target contract method invalid %s %s", merkleValue.Method)
-			return acommon.UINT256_EMPTY, fmt.Errorf("Invalid target contract method %s", merkleValue.Method)
-		}
 	}
 
 	k, err := hex.DecodeString(key)
@@ -188,6 +177,19 @@ func (this *SyncService) syncProofToAlia(key string, height uint32) (acommon.Uin
 		return acommon.UINT256_EMPTY, fmt.Errorf("[syncProofToAlia] hex.DecodeString error: %s", err)
 	}
 
+	{
+		value, _, _, _ := tools.ParseAuditpath(auditPath)
+		merkleValue := &ccom.MakeTxParam{}
+		if err := merkleValue.Deserialization(common2.NewZeroCopySource(value)); err != nil {
+			log.Errorf("[syncProofToAlia] - failed to deserialize MakeTxParam (value: %x, err: %v)", params, err)
+			return acommon.UINT256_EMPTY, fmt.Errorf("[syncProofToSide] - failed to deserialize MakeTxParam (value: %x, err: %v)", params, err)
+		}
+
+		if !METHODS[merkleValue.Method] {
+			log.Errorf("[syncProofToAlia] target contract method invalid %s", merkleValue.Method)
+			return acommon.UINT256_EMPTY, fmt.Errorf("Invalid target contract method %s", merkleValue.Method)
+		}
+	}
 	retry := &db.Retry{
 		Height: height,
 		Key:    key,
