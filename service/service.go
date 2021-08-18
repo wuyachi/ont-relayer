@@ -38,6 +38,17 @@ import (
 	autils "github.com/polynetwork/poly/native/service/utils"
 )
 
+var METHODS = map[string]bool{
+	"add":             true,
+	"remove":          true,
+	"swap":            true,
+	"unlock":          true,
+	"addExtension":    true,
+	"removeExtension": true,
+	"registerAsset":   true,
+	"onCrossTransfer": true,
+}
+
 type SyncService struct {
 	aliaAccount    *asdk.Account
 	aliaSdk        *asdk.PolySdk

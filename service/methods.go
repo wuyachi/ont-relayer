@@ -169,8 +169,8 @@ func (this *SyncService) syncProofToAlia(key string, height uint32) (acommon.Uin
 			return acommon.UINT256_EMPTY, fmt.Errorf("[syncProofToSide] - failed to deserialize MakeTxParam (value: %x, err: %v)", params, err)
 		}
 
-		if merkleValue.Method != "unlock" {
-			log.Errorf("target contract method invalid %s", merkleValue.Method)
+		if !METHODS[merkleValue.Method] {
+			log.Errorf("target contract method invalid %s %s", merkleValue.Method)
 			return acommon.UINT256_EMPTY, fmt.Errorf("Invalid target contract method %s", merkleValue.Method)
 		}
 	}
@@ -323,7 +323,7 @@ func (this *SyncService) syncProofToSide(key string, height uint32) (common2.Uin
 		return common2.UINT256_EMPTY, fmt.Errorf("[syncProofToSide] - failed to deserialize MakeTxParam (value: %x, err: %v)", value, err)
 	}
 
-	if merkleValue.MakeTxParam.Method != "unlock" {
+	if !METHODS[merkleValue.MakeTxParam.Method] {
 		log.Errorf("target contract method invalid %s", merkleValue.MakeTxParam.Method)
 		return common2.UINT256_EMPTY, fmt.Errorf("Invalid target contract method %s", merkleValue.MakeTxParam.Method)
 	}
