@@ -153,6 +153,7 @@ func (this *SyncService) ProcessToAllianceCheckAndRetry() {
 }
 
 func (this *SyncService) isPaid(param *common2.ToMerkleValue) bool {
+	c := 0
 	for {
 		txHash := hex.EncodeToString(param.MakeTxParam.TxHash)
 		req := &bridgesdk.CheckFeeReq{Hash: txHash, ChainId: param.FromChainID}
@@ -174,11 +175,14 @@ func (this *SyncService) isPaid(param *common2.ToMerkleValue) bool {
 		case bridgesdk.STATE_NOTPAY:
 			return false
 		case bridgesdk.STATE_NOTCHECK:
+			c++
 			log.Errorf("CheckFee STATE_NOTCHECK, TxHash:%s FromChainID:%d, wait...", txHash, param.FromChainID)
 			time.Sleep(time.Second)
+			if c > 10 {
+				return false
+			}
 			continue
 		}
-
 	}
 }
 
