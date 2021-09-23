@@ -64,6 +64,7 @@ type Config struct {
 	GasLimit                  uint64
 	SideToAlliForceSyncHeight uint64
 	AlliToSideForceSyncHeight uint64
+	FeePrePaidCount           uint64
 	BridgeConfig              BridgeConfig
 }
 

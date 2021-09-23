@@ -17,9 +17,12 @@
 package service
 
 import (
+	"bytes"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"time"
 
@@ -173,6 +176,13 @@ func (this *SyncService) isPaid(param *common2.ToMerkleValue) bool {
 		case bridgesdk.STATE_HASPAY:
 			return true
 		case bridgesdk.STATE_NOTPAY:
+			if this.config.FeePrePaidCount > 0 {
+				log.Infof("FeeNotPaidFreeCount=%d, txHash:%s is prePaid", this.config.FeePrePaidCount, txHash)
+				this.config.FeePrePaidCount--
+				return true
+			}
+			ss := "[ONT FeePrePaid Count exhausted]_[mainnet]\n" + "txHash:" + txHash
+			PostDingtext(ss, "https://oapi.dingtalk.com/robot/send?access_token=63395d10b3104b3b3817db7d6d673b4cd7452b7a375e333dd07b85f17c6c9ca6")
 			return false
 		case bridgesdk.STATE_NOTCHECK:
 			c++
@@ -308,5 +318,36 @@ func (this *SyncService) sideToAlliance(m, n uint32) error {
 			log.Errorf("failed to put ont height: %v", err)
 		}
 	}
+	return nil
+}
+
+func PostDingtext(body string, DingUrl string) error {
+	payload := map[string]interface{}{}
+	payload["msgtype"] = "text"
+	card := map[string]interface{}{}
+	card["content"] = body
+	payload["text"] = card
+	return PostJson(DingUrl, payload)
+}
+
+func PostJson(url string, payload interface{}) error {
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	log.Info("PostJson response Body:", string(respBody))
 	return nil
 }
