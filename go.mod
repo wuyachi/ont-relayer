@@ -11,7 +11,7 @@ require (
 	github.com/polynetwork/poly-go-sdk v0.0.0-20200817120957-365691ad3493
 	github.com/stretchr/testify v1.6.1
 	github.com/urfave/cli v1.22.5
-	poly-bridge v0.0.0-20210112082403-a45d71989293
+	github.com/polynetwork/poly-bridge/bridgesdk v0.0.2
 )
 
 replace poly-bridge => github.com/polynetwork/poly-bridge v0.0.0-20210126083254-80335b53070a

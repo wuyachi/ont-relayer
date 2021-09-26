@@ -26,7 +26,7 @@ import (
 	"os"
 	"time"
 
-	"poly-bridge/bridgesdk"
+	"github.com/polynetwork/poly-bridge/bridgesdk"
 
 	sdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology/common"
@@ -192,6 +192,9 @@ func (this *SyncService) isPaid(param *common2.ToMerkleValue) bool {
 				return false
 			}
 			continue
+		case bridgesdk.STATE_NOTPOLYPROXY:
+			log.Info("tx (poly: %s, src: %s) has not POLYPROXY.", hex.EncodeToString(param.TxHash), txHash)
+			return false
 		}
 	}
 }

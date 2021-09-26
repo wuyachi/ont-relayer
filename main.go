@@ -40,7 +40,7 @@ import (
 	"runtime"
 	"syscall"
 
-	"poly-bridge/bridgesdk"
+	"github.com/polynetwork/poly-bridge/bridgesdk"
 
 	sdk "github.com/ontio/ontology-go-sdk"
 	"github.com/polynetwork/ont-relayer/cmd"
