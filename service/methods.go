@@ -357,7 +357,12 @@ func (this *SyncService) syncProofToSide(key string, height uint32) (common2.Uin
 	method := cross_chain_manager.PROCESS_CROSS_CHAIN_TX
 	txHash, err := this.sideSdk.Native.InvokeNativeContract(this.GetGasPrice(), this.GetGasLimit(),
 		this.sideAccount, this.sideAccount, codeVersion, contractAddress, method, []interface{}{param})
+
 	if err != nil {
+		if strings.Contains(err.Error(), "tx already done") {
+			log.Infof("%v tx already done", hex.EncodeToString(merkleValue.TxHash))
+			return common2.UINT256_EMPTY, nil
+		}
 		return common2.UINT256_EMPTY, err
 	}
 	return txHash, nil
